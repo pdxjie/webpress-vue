@@ -117,8 +117,6 @@ import { PageView } from '@/layouts'
 import HeadInfo from '@/components/tools/HeadInfo'
 import { Radar } from '@/components'
 
-import { getRoleList, getServiceList } from '@/api/manage'
-
 const DataSet = require('@antv/data-set')
 
 export default {
@@ -191,14 +189,6 @@ export default {
   created () {
     this.user = this.userInfo
     this.avatar = this.userInfo.avatar
-
-    getRoleList().then(res => {
-      // console.log('workplace -> call getRoleList()', res)
-    })
-
-    getServiceList().then(res => {
-      // console.log('workplace -> call getServiceList()', res)
-    })
   },
   mounted () {
     this.getProjects()

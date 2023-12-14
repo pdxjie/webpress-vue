@@ -18,7 +18,7 @@ import './permission' // permission control
 import './utils/filter' // global filter
 import './components/global.less'
 import { Dialog } from '@/components'
-
+import '@/styles/common.less'
 Vue.config.productionTip = false
 
 // mount axios Vue.$http and this.$http
