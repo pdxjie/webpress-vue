@@ -11,7 +11,7 @@
             <a-range-picker format="YYYY-MM-DD HH:mm:ss" @change='selectDate'/>
           </a-form-item>
         </a-form>
-        <a-button type="primary" icon='plus'>
+        <a-button type="primary" icon='plus' @click='addPersonal'>
           新增用户
         </a-button>
       </div>
@@ -57,6 +57,8 @@
         </template>
       </a-table>
     </a-card>
+    <!-- 操作用户信息的组件 -->
+    <OperatePersonal ref='operate-personal' :userId='operatorId' :title='title'/>
   </div>
 </template>
 
@@ -67,8 +69,10 @@ import { mapState } from 'vuex'
 import { columns } from '@/views/personal/columns'
 import Ellipsis from '@/components/Ellipsis'
 import { deleteInfo, forbiddenInfo, searchPage } from '@/api/user'
+import OperatePersonal from '@/views/personal/components/OperatePersonal'
 export default {
   name: 'Personal',
+  components: { OperatePersonal },
   comments: { Ellipsis },
   data () {
     return {
@@ -92,7 +96,9 @@ export default {
           return ' 共' + total + '条'
         }
       },
-      userId: ''
+      userId: '',
+      title: '',
+      operatorId: ''
     }
   },
   created () {
@@ -178,9 +184,17 @@ export default {
         await this.getUserData()
       }
     },
+    // 添加用户（管理员只是添加测试数据）
+    addPersonal () {
+      this.title = ['添加用户', '添加']
+      this.$refs['operate-personal'].userVo.resetFields()
+      this.$refs['operate-personal'].visible = true
+    },
     // 更新用户信息
-    updateUserInfo () {
-      // TODO
+    async updateUserInfo (id) {
+      this.title = ['更新用户', '更新']
+      this.operatorId = id
+      this.$refs['operate-personal'].visible = true
     },
     // 设置用户角色
     setRoleOperate () {}
