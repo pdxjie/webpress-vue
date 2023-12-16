@@ -2,16 +2,16 @@
   <div>
     <a-card>
       <!-- 搜索区域 -->
-      <div class='display-flex align-items justify-between margin-b-14'>
+      <div class="display-flex align-items justify-between margin-b-14">
         <a-form layout="inline" :form="searchVo">
-          <a-form-item label='用户昵称'>
-            <a-input placeholder="请输入用户昵称..." v-model='searchVo.nickName' @change='debounceInput':allowClear='true'/>
+          <a-form-item label="用户昵称">
+            <a-input placeholder="请输入用户昵称..." v-model="searchVo.nickName" @change="debounceInput":allowClear="true"/>
           </a-form-item>
-          <a-form-item label='注册时间'>
-            <a-range-picker format="YYYY-MM-DD HH:mm:ss" @change='selectDate'/>
+          <a-form-item label="注册时间">
+            <a-range-picker format="YYYY-MM-DD HH:mm:ss" @change="selectDate"/>
           </a-form-item>
         </a-form>
-        <a-button type="primary" icon='plus' @click='addPersonal'>
+        <a-button type="primary" icon="plus" @click="addPersonal">
           新增用户
         </a-button>
       </div>
@@ -53,18 +53,18 @@
             <a-button type="danger" shape="circle" icon="delete" />
           </a-popconfirm>
           <a-button @click="updateUserInfo(record.id)" type="primary" class="margin-l-10" shape="circle" icon="edit" />
-          <a-button @click="setRoleOperate(record)" class="margin-l-10" shape="circle" icon="setting" :disabled='record.id === userId'/>
+          <a-button @click="setRoleOperate(record)" class="margin-l-10" shape="circle" icon="setting" :disabled="record.id === userId"/>
         </template>
       </a-table>
     </a-card>
     <!-- 操作用户信息的组件 -->
     <OperatePersonal
-      ref='operate-personal'
-      :userId='operatorId'
-      :operateType='operateType'
-      @insertUserInfo='addUserInfo'
-      @updateUserInfo='modifyUserInfo'
-      :title='title'/>
+      ref="operate-personal"
+      :userId="operatorId"
+      :operateType="operateType"
+      @insertUserInfo="addUserInfo"
+      @updateUserInfo="modifyUserInfo"
+      :title="title"/>
   </div>
 </template>
 

@@ -16,7 +16,7 @@ export const asyncRouterMap = [
         name: 'dashboard',
         redirect: '/dashboard/analysis',
         component: RouteView,
-        meta: { title: '仪表盘', keepAlive: true, icon: bxAnaalyse, permission: [ 'dashboard' ] },
+        meta: { title: '仪表盘', keepAlive: false, icon: bxAnaalyse, permission: [ 'dashboard' ] },
         children: [
           {
             path: 'analysis',
@@ -31,13 +31,28 @@ export const asyncRouterMap = [
         name: 'personal',
         component: RouteView,
         redirect: '/personal/center',
-        meta: { title: '用户管理', icon: 'user', keepAlive: true },
+        meta: { title: '用户管理', icon: 'user', keepAlive: false },
         children: [
           {
             path: '/personal/center',
             name: 'center',
             component: () => import('@/views/personal/index'),
-            meta: { title: '用户列表', keepAlive: true }
+            meta: { title: '用户列表', keepAlive: false }
+          }
+        ]
+      },
+      {
+        path: '/dic',
+        name: 'dictionary',
+        component: RouteView,
+        redirect: '/dic/center',
+        meta: { title: '字典管理', icon: 'tags', keepAlive: false },
+        children: [
+          {
+            path: '/dic/center',
+            name: 'dicCenter',
+            component: () => import('@/views/dictionary/index'),
+            meta: { title: '字典列表', keepAlive: false }
           }
         ]
       },
