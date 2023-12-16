@@ -2,7 +2,7 @@
  * 用户相关请求模块
  */
 import api from '@/api/index'
-import constant from '@/constants'
+import { requestType as constant } from '@/constants'
 import { axios } from '@/utils/request'
 
 /**

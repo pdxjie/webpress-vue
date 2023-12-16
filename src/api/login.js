@@ -2,7 +2,7 @@
  * 基础前置操作
  */
 import api from '@/api/index'
-import constant from '@/constants'
+import { requestType as constant } from '@/constants'
 import { axios } from '@/utils/request'
 
 /**

@@ -58,17 +58,24 @@
       </a-table>
     </a-card>
     <!-- 操作用户信息的组件 -->
-    <OperatePersonal ref='operate-personal' :userId='operatorId' :title='title'/>
+    <OperatePersonal
+      ref='operate-personal'
+      :userId='operatorId'
+      :operateType='operateType'
+      @insertUserInfo='addUserInfo'
+      @updateUserInfo='modifyUserInfo'
+      :title='title'/>
   </div>
 </template>
 
 <script>
 import _ from 'lodash'
 import moment from 'moment'
+import { responseCode } from '@/constants'
 import { mapState } from 'vuex'
 import { columns } from '@/views/personal/columns'
 import Ellipsis from '@/components/Ellipsis'
-import { deleteInfo, forbiddenInfo, searchPage } from '@/api/user'
+import { deleteInfo, forbiddenInfo, insertUser, searchPage, updateUser } from '@/api/user'
 import OperatePersonal from '@/views/personal/components/OperatePersonal'
 export default {
   name: 'Personal',
@@ -98,7 +105,8 @@ export default {
       },
       userId: '',
       title: '',
-      operatorId: ''
+      operatorId: '',
+      operateType: ''
     }
   },
   created () {
@@ -150,6 +158,11 @@ export default {
       this.userData = data.users
       this.loading = false
     },
+    async refreshUserData () {
+      // 请求接口
+      const { data } = await searchPage(this.searchVo)
+      this.userData = data.users
+    },
     // 取消删除
     cancel () {
       this.$message.info('取消删除！')
@@ -167,37 +180,61 @@ export default {
     // 更新用户状态
     async changeStatus (record) {
       if (record.id === this.userId) {
-        await this.$message.warning('不能封禁自己！')
+        this.$message.warning('不能封禁自己！')
         return
       }
       const data = await forbiddenInfo(record.id)
-      if (data.code === 200) {
-        await this.$message.success('更新成功！')
-        await this.getUserData()
+      if (data.code === responseCode.SUCCESS) {
+        this.$message.success('更新成功！')
+        this.refreshUserData()
       }
     },
     // 删除用户
     async deleteUser (id) {
       const data = await deleteInfo(id)
-      if (data.code === 200) {
-        await this.$message.success('删除成功！')
-        await this.getUserData()
+      if (data.code === responseCode.SUCCESS) {
+        this.$message.success('删除成功！')
+        this.getUserData()
       }
     },
     // 添加用户（管理员只是添加测试数据）
     addPersonal () {
       this.title = ['添加用户', '添加']
-      this.$refs['operate-personal'].userVo.resetFields()
+      this.operateType = 'insert'
+      this.operatorId = ''
+      this.$refs['operate-personal'].form.remark = ''
+      this.$refs['operate-personal'].form.openId = ''
       this.$refs['operate-personal'].visible = true
     },
     // 更新用户信息
     async updateUserInfo (id) {
       this.title = ['更新用户', '更新']
+      this.operateType = 'update'
       this.operatorId = id
       this.$refs['operate-personal'].visible = true
     },
     // 设置用户角色
-    setRoleOperate () {}
+    setRoleOperate () {},
+    async addUserInfo (vo) {
+      const data = await insertUser(vo)
+      if (data.code === responseCode.SUCCESS) {
+        // 获取分页数据
+        this.getUserData()
+        this.$message.success('添加成功！')
+      }
+      this.$refs['operate-personal'].visible = false
+      this.$refs['operate-personal'].loading = false
+    },
+    async modifyUserInfo (vo) {
+      const data = await updateUser(vo)
+      if (data.code === responseCode.SUCCESS) {
+        // 获取分页数据
+        this.getUserData()
+        this.$message.success('更新成功！')
+      }
+      this.$refs['operate-personal'].visible = false
+      this.$refs['operate-personal'].loading = false
+    }
   }
 }
 </script>
