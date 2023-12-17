@@ -79,8 +79,7 @@ import { deleteInfo, forbiddenInfo, insertUser, searchPage, updateUser } from '@
 import OperatePersonal from '@/views/personal/components/OperatePersonal'
 export default {
   name: 'Personal',
-  components: { OperatePersonal },
-  comments: { Ellipsis },
+  components: { OperatePersonal, Ellipsis },
   data () {
     return {
       columns, // 表格列

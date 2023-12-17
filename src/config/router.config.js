@@ -42,6 +42,28 @@ export const asyncRouterMap = [
         ]
       },
       {
+        path: '/article',
+        name: 'article',
+        component: RouteView,
+        redirect: '/article/center',
+        meta: { title: '内容管理', icon: 'file-markdown', keepAlive: false },
+        children: [
+          {
+            path: '/article/center',
+            name: 'articleCenter',
+            component: () => import('@/views/article/index'),
+            meta: { title: '内容列表', keepAlive: false }
+          },
+          {
+            path: '/article/operate',
+            name: 'articleOperate',
+            hidden: true,
+            component: () => import('@/views/article/components/OperateArticle'),
+            meta: { title: '操作内容', keepAlive: false }
+          }
+        ]
+      },
+      {
         path: '/dic',
         name: 'dictionary',
         component: RouteView,
@@ -53,6 +75,36 @@ export const asyncRouterMap = [
             name: 'dicCenter',
             component: () => import('@/views/dictionary/index'),
             meta: { title: '字典列表', keepAlive: false }
+          }
+        ]
+      },
+      {
+        path: '/category',
+        name: 'category',
+        component: RouteView,
+        redirect: '/category/center',
+        meta: { title: '分类管理', icon: 'pull-request', keepAlive: false },
+        children: [
+          {
+            path: '/category/center',
+            name: 'categoryCenter',
+            component: () => import('@/views/category/index'),
+            meta: { title: '分类列表', keepAlive: false }
+          }
+        ]
+      },
+      {
+        path: '/banner',
+        name: 'banner',
+        component: RouteView,
+        redirect: '/banner/center',
+        meta: { title: '轮播图管理', icon: 'switcher', keepAlive: false },
+        children: [
+          {
+            path: '/banner/center',
+            name: 'bannerCenter',
+            component: () => import('@/views/banner/index'),
+            meta: { title: '轮播图列表', keepAlive: false }
           }
         ]
       },

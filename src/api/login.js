@@ -43,3 +43,19 @@ export function logout () {
     }
   })
 }
+
+/**
+ * 图片上传
+ * @param file
+ * @returns {AxiosPromise}
+ */
+export const uploadFile = (file) => {
+  return axios({
+    url: '/basic/batch/upload',
+    method: 'post',
+    data: file,
+    headers: {
+      'Content-type': 'multipart/form-data'
+    }
+  })
+}

@@ -16,7 +16,8 @@ export const columns = [
     title: '邮箱',
     align: 'center',
     dataIndex: 'email',
-    key: 'email'
+    key: 'email',
+    scopedSlots: { customRender: 'email' }
   },
   {
     title: '性别',
