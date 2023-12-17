@@ -62,7 +62,7 @@
           :default-value='form.categoryId'
           v-model='form.categoryId'
           v-decorator="['categoryId', { initialValue: twiceCategories[0].id, rules: [{ required: true, message: '内容分类不能为空！' }] }]">
-          <a-select-option v-for='cate in twiceCategories' :key='cate.id' :value='cate.id'>
+          <a-select-option v-for='cate in twiceCategories ? twiceCategories : []' :key='cate.id' :value='cate.id'>
             {{ cate.name }}
           </a-select-option>
         </a-select>
@@ -122,14 +122,7 @@ export default {
     },
     baseInfo: {
       type: Object,
-      default: () => {
-        return {
-          title: '',
-          description: '',
-          categoryId: '',
-          type: 0
-        }
-      }
+      default: null
     }
   },
   data () {
@@ -144,9 +137,6 @@ export default {
     }
   },
   created () {
-    if (this.baseInfo) {
-      this.form.setFieldsValue(this.baseInfo)
-    }
     this.allTwiceCategories()
   },
   methods: {
@@ -167,9 +157,17 @@ export default {
       })
     },
     async allTwiceCategories () {
+      debugger
       const { data } = await allTwiceCategoryData()
-      console.log(data, 'twice')
       this.twiceCategories = data.result
+      if (this.baseInfo) {
+        this.form.setFieldsValue({
+          title: this.baseInfo.title,
+          description: this.baseInfo.description,
+          categoryId: this.baseInfo.categoryId,
+          type: this.baseInfo.type
+        })
+      }
     },
     prevStep () {
       this.$emit('prevStep', this.content)

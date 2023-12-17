@@ -4,12 +4,18 @@
       <a-steps class="steps" :current="currentTab">
         <a-step title="完成文章内容" />
         <a-step title="完成基本信息" />
-        <a-step title="发布状态" :status='getStatus()'/>
+        <a-step title="发布状态"/>
       </a-steps>
       <div class="content">
         <StepToFillContent :articleContent='content' v-if='currentTab === 0' @nextStep='nextStep'/>
-        <StepToBaseInfo :content='content' :baseInfo='baseInfo' v-if='currentTab === 1' @prevStep='prevStep' @finishPublish='finishPublish'/>
-        <StepToResult v-if='currentTab === 2' :response='response' @keepShare='keepShare' :articleVo='articleVo'/>
+        <StepToBaseInfo
+          :key='key'
+          :content='content'
+          :baseInfo='baseInfo'
+          v-if='currentTab === 1'
+          @prevStep='prevStep'
+          @finishPublish='finishPublish'/>
+        <StepToResult v-if='currentTab === 2' :response='response' @keepShare='keepShare' @toFixedInfo='toFixedInfo'/>
       </div>
     </a-card>
   </div>
@@ -24,10 +30,6 @@ export default {
   name: 'OperateArticle',
   components: { StepToResult, StepToBaseInfo, StepToFillContent },
   created () {
-    if (this.$route.params) {
-      this.content = this.$route.params.info.content
-      this.baseInfo = this.$route.params.info
-    }
   },
   data () {
     return {
@@ -35,7 +37,8 @@ export default {
       content: '',
       response: null,
       articleVo: null,
-      baseInfo: null
+      baseInfo: null,
+      key: 0
     }
   },
   methods: {
@@ -63,12 +66,11 @@ export default {
         this.currentTab += 1
       }
     },
-    getStatus () {
-      if (this.response) {
-        return this.response.code === 200 ? 'finish' : 'error'
-      } else {
-        return 'wait'
-      }
+    toFixedInfo () {
+      this.key = Math.random()
+      this.currentTab = 0
+      this.content = this.articleVo.content
+      this.baseInfo = this.articleVo
     }
   }
 }

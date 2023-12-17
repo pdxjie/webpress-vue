@@ -16,7 +16,13 @@
         </a-button>
       </div>
       <!-- 列表 -->
-      <a-table :columns="columns" :data-source="articleData" :pagination="pagination" :loading="loading" :row-key="record => record.id">
+      <a-table
+        @change="handleTableChange"
+        :columns="columns"
+        :data-source="articleData"
+        :pagination="pagination"
+        :loading="loading"
+        :row-key="record => record.id">
         <template slot="cover" slot-scope="text, record">
           <a-avatar size="large" shape="square" :src="record.cover" />
         </template>
@@ -50,14 +56,6 @@
         </template>
       </a-table>
     </a-card>
-    <!-- 操作用户信息的组件 -->
-    <OperatePersonal
-      ref="operate-personal"
-      :userId="operatorId"
-      :operateType="operateType"
-      @insertUserInfo="addUserInfo"
-      @updateUserInfo="modifyUserInfo"
-      :title="title"/>
   </div>
 </template>
 
@@ -140,6 +138,7 @@ export default {
       // 请求接口
       const { data } = await articleSearch(this.searchVo)
       this.articleData = data.articles
+      this.pagination.total = data.total
       this.loading = false
     },
     async refreshUserData () {

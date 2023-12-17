@@ -4,7 +4,7 @@
     <div>
       <result type="error" :title="title" :description="description">
         <template slot="action">
-          <a-button type="primary" @click='toUpdate'>返回修改</a-button>
+          <a-button type="primary" @click='toFixedInfo'>返回修改</a-button>
         </template>
       </result>
     </div>
@@ -44,9 +44,8 @@ export default {
     isSuccess () {
       return this.response.code === responseCode.SUCCESS
     },
-    toUpdate () {
-      debugger
-      this.$router.push({ name: 'articleOperate', params: { info: this.articleVo } })
+    toFixedInfo () {
+      this.$emit('toFixedInfo')
     }
   }
 }
