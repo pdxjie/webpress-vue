@@ -1,7 +1,7 @@
 <template>
   <div>
-<!--    <Success @keepShare='keepShare' v-if='!isSuccess()'/>-->
-    <div>
+    <Success @keepShare='keepShare' v-if='isSuccess()'/>
+    <div v-else>
       <result type="error" :title="title" :description="description">
         <template slot="action">
           <a-button type="primary" @click='toFixedInfo'>返回修改</a-button>

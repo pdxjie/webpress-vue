@@ -24,8 +24,9 @@
 <script>
 import StepToFillContent from '@/views/article/components/StepToFillContent'
 import StepToBaseInfo from '@/views/article/components/StepToBaseInfo'
-import { insertArticle } from '@/api/article'
+import { insertArticle, updateArticle } from '@/api/article'
 import StepToResult from '@/views/article/components/StepToResult'
+import { operateType } from '@/constants'
 export default {
   name: 'OperateArticle',
   components: { StepToResult, StepToBaseInfo, StepToFillContent },
@@ -60,7 +61,13 @@ export default {
     },
     async finishPublish (vo) {
       this.articleVo = vo
-      const data = await insertArticle(vo)
+      const { type } = this.$route.query
+      let data = null
+      if (type === operateType.UPDATE) {
+        data = await updateArticle(vo)
+      } else {
+        data = await insertArticle(vo)
+      }
       this.response = data
       if (this.currentTab < 2) {
         this.currentTab += 1

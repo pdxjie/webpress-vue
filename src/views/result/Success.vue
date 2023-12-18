@@ -12,6 +12,7 @@
 <script>
 import { Result } from '@/components'
 import { mixinDevice } from '@/utils/mixin.js'
+import { operateType } from '@/constants'
 
 const directionType = {
   horizontal: 'horizontal',
@@ -29,6 +30,13 @@ export default {
       title: '发布成功',
       description: '恭喜您，发布成功！期待您的下一次贡献。',
       directionType
+    }
+  },
+  created () {
+    const { type } = this.$route.query
+    if (type === operateType.UPDATE) {
+      this.title = '更新成功'
+      this.description = '恭喜您，更新成功！期待您的下一次贡献。'
     }
   },
   methods: {

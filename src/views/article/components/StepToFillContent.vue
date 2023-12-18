@@ -15,6 +15,9 @@
 </template>
 
 <script>
+import { operateType } from '@/constants'
+import { articleInfo } from '@/api/article'
+
 export default {
   name: 'StepToFillContent',
   props: {
@@ -29,8 +32,15 @@ export default {
       error: false
     }
   },
-  created () {
-    this.content = this.articleContent
+  async created () {
+    const { id, type } = this.$route.query
+    // 如果是更新操作
+    if (type === operateType.UPDATE) {
+      const { data } = await articleInfo(id)
+      this.content = data.article.content
+    } else {
+      this.content = this.articleContent
+    }
   },
   watch: {
     content () {

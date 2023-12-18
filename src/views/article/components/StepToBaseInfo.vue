@@ -1,6 +1,7 @@
 <template>
   <div>
-    <a-form :form='form' style='max-width: 600px; margin: 40px auto 0;'>
+    <a-spin :spinning='loading'>
+      <a-form :form='form' style='max-width: 600px; margin: 40px auto 0;'>
       <a-form-item
         style='display: flex;align-items: center'
         :labelCol='labelCol'
@@ -37,8 +38,8 @@
       >
         <a-input
           placeholder='请输入标题'
-          v-model='form.title'
-          v-decorator="['title', { rules: [{ required: true, message: '内容标题不能为空！'}] }]" />
+          :allowClear='true'
+          v-decorator="['title', { initialValue: info.title, rules: [{ required: true, message: '内容标题不能为空！'}] }]" />
       </a-form-item>
       <a-form-item
         label='内容简介'
@@ -48,9 +49,8 @@
         <a-textarea
           :defaultValue='form.description'
           :allowClear='true'
-          v-model='form.description'
           :auto-size='{ minRows: 3, maxRows: 5 }'
-          v-decorator="['description']"
+          v-decorator="['description', { initialValue: info.description }]"
           placeholder='请输入内容简介' />
       </a-form-item>
       <a-form-item
@@ -60,8 +60,7 @@
       >
         <a-select
           :default-value='form.categoryId'
-          v-model='form.categoryId'
-          v-decorator="['categoryId', { initialValue: twiceCategories[0].id, rules: [{ required: true, message: '内容分类不能为空！' }] }]">
+          v-decorator="['categoryId', { initialValue: info.categoryId, rules: [{ required: true, message: '内容分类不能为空！' }] }]">
           <a-select-option v-for='cate in twiceCategories ? twiceCategories : []' :key='cate.id' :value='cate.id'>
             {{ cate.name }}
           </a-select-option>
@@ -73,8 +72,7 @@
         :wrapperCol='wrapperCol'
       >
         <a-select
-          v-model='form.type'
-          v-decorator="['type', { initialValue: 0, rules: [{ required: true, message: '内容类型不能为空' }] }]">
+          v-decorator="['type', { initialValue: info.type, rules: [{ required: true, message: '内容类型不能为空' }] }]">
           <a-select-option :value='0'>
             技术分享
           </a-select-option>
@@ -88,7 +86,7 @@
         :labelCol='labelCol'
         :wrapperCol='wrapperCol'
       >
-        <a-radio-group name='radioGroup' :default-value='false' @change='changeModel'>
+        <a-radio-group name='radioGroup' v-model='isRecommend' :default-value='false' @change='changeModel'>
           <a-radio :value='false'>
             普通
           </a-radio>
@@ -98,9 +96,10 @@
         </a-radio-group>
       </a-form-item>
     </a-form>
+    </a-spin>
     <div class='display-flex justify-between'>
       <a-button type='primary' @click='prevStep'>上一步</a-button>
-      <a-button type='primary' @click='nextStep'>发布</a-button>
+      <a-button type='primary' @click='nextStep' v-html='operateWay()'></a-button>
     </div>
   </div>
 </template>
@@ -108,6 +107,8 @@
 <script>
 import { allTwiceCategoryData } from '@/api/category'
 import { uploadFile } from '@/api/login'
+import { operateType } from '@/constants'
+import { articleInfo } from '@/api/article'
 function getBase64 (img, callback) {
   const reader = new FileReader()
   reader.addEventListener('load', () => callback(reader.result))
@@ -133,7 +134,14 @@ export default {
       isRecommend: false,
       twiceCategories: [],
       uploadUrl: '',
-      uploadLoading: false
+      uploadLoading: false,
+      info: {
+        title: '',
+        description: '',
+        categoryId: '',
+        type: 0
+      },
+      loading: false
     }
   },
   created () {
@@ -145,28 +153,52 @@ export default {
       // 先校验，通过表单校验后，才进入下一步
       validateFields((err, values) => {
         if (!err) {
-          console.log(values, 'values')
           const vo = {
             ...values,
             isRecommend: this.isRecommend,
             content: this.content,
             cover: this.uploadUrl
           }
+          const { id, type } = this.$route.query
+          if (type === operateType.UPDATE) {
+            vo.id = id
+          }
           this.$emit('finishPublish', vo)
         }
       })
     },
+    operateWay () {
+      const { type } = this.$route.query
+      if (type === operateType.UPDATE) {
+        return '更新'
+      } else {
+        return '发布'
+      }
+    },
     async allTwiceCategories () {
-      debugger
+      this.loading = true
       const { data } = await allTwiceCategoryData()
       this.twiceCategories = data.result
-      if (this.baseInfo) {
-        this.form.setFieldsValue({
-          title: this.baseInfo.title,
-          description: this.baseInfo.description,
-          categoryId: this.baseInfo.categoryId,
-          type: this.baseInfo.type
-        })
+      this.initData(this.twiceCategories)
+      this.loading = false
+    },
+    async initData (cates) {
+      const { id, type } = this.$route.query
+      // 如果是更新操作
+      if (type === operateType.UPDATE) {
+        const { data } = await articleInfo(id)
+        this.info = data.article
+        this.isRecommend = data.article.recommend
+        this.uploadUrl = data.article.cover
+      } else {
+        if (this.baseInfo) {
+          this.info = this.baseInfo
+          this.uploadUrl = this.baseInfo.cover
+          this.isRecommend = this.baseInfo.recommend
+        } else {
+          this.info.type = 0
+          this.info.categoryId = cates[0].id
+        }
       }
     },
     prevStep () {

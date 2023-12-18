@@ -28,7 +28,7 @@
         </template>
         <template slot="articleTitle" slot-scope="text, record">
           <ellipsis :length="10" :tooltip="true">{{ record.articleTitle }}</ellipsis>
-        </template>
+        </template>‘；74
         <template slot="type" slot-scope="text, record">
           <a-tag color="green" v-if="record.type === 0">技术分享</a-tag>
           <a-tag color="orange" v-if="record.type === 1">面试题</a-tag>
@@ -181,9 +181,9 @@ export default {
     updateArticleInfo (id) {
       this.$router.push({
         name: 'articleOperate',
-        params: {
-          type: operateType.UPDATE,
-          id
+        query: {
+          id,
+          type: operateType.UPDATE
         }
       })
     }
