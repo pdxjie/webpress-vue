@@ -8,7 +8,17 @@
             <a-input placeholder="请输入内容标题" v-model="searchVo.title" @change="debounceInput" :allowClear="true"/>
           </a-form-item>
           <a-form-item label="类型">
-            <a-input placeholder="请输入内容标题" v-model="searchVo.title" @change="debounceInput" :allowClear="true"/>
+            <a-select v-model='filterType' style='width: 120px!important;' @change='changeType'>
+              <a-select-option value='all'>
+                全部
+              </a-select-option>
+              <a-select-option :value='0'>
+                技术分享
+              </a-select-option>
+              <a-select-option :value='1'>
+                面试题
+              </a-select-option>
+            </a-select>
           </a-form-item>
         </a-form>
         <a-button type="primary" icon="yuque" @click="addArticle">
@@ -76,7 +86,6 @@ export default {
       columns, // 表格列
       articleData: [], // 用户数据
       searchVo: {
-        categoryId: '',
         title: '',
         type: '',
         current: 1,
@@ -96,7 +105,8 @@ export default {
       userId: '',
       title: '',
       operatorId: '',
-      operateType: ''
+      operateType: '',
+      filterType: 'all'
     }
   },
   created () {
@@ -123,6 +133,10 @@ export default {
       this.searchVo.pageSize = pagination.pageSize
       this.getArticleData()
     },
+    changeType (val) {
+      this.filterType = val
+      this.getArticleData()
+    },
     debounceInput () {
       // 调用防抖搜素函数
       this.onSearch()
@@ -134,6 +148,11 @@ export default {
     }, 1000),
     // 获取内容数据
     async getArticleData () {
+      if (this.filterType === 'all') {
+        this.searchVo.type = ''
+      } else {
+        this.searchVo.type = this.filterType
+      }
       this.loading = true
       // 请求接口
       const { data } = await articleSearch(this.searchVo)
