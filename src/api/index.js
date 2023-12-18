@@ -3,6 +3,7 @@ export const userPrefix = '/pdx/user/'
 export const dicPrefix = '/pdx/dic/'
 export const articlePrefix = '/pdx/article/'
 export const categoryPrefix = '/pdx/category/'
+export const bannerPrefix = '/pdx/banner/'
 const api = {
   /* 基础功能接口 */
   Login: '/basic/login',
@@ -43,6 +44,13 @@ const api = {
   updateCategory: categoryPrefix + 'update',
   deleteCategory: categoryPrefix,
   categoryInfo: categoryPrefix,
-  allParents: categoryPrefix + 'parent'
+  allParents: categoryPrefix + 'parent',
+
+  /* 轮播图模块相关接口 */
+  bannerSearch: bannerPrefix + 'pages',
+  insertBanner: bannerPrefix + 'add',
+  updateBanner: bannerPrefix + 'edit',
+  bannerInfo: bannerPrefix,
+  deleteBanner: bannerPrefix
 }
 export default api

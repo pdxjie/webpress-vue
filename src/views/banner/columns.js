@@ -1,19 +1,24 @@
 export const columns = [
   {
-    title: '字典 Key',
-    dataIndex: 'dicKey',
-    key: 'dicKey',
+    title: '轮播图',
+    dataIndex: 'cover',
+    key: 'cover',
     align: 'center',
-    width: '400px',
-    scopedSlots: { customRender: 'dicKey' }
+    scopedSlots: { customRender: 'cover' }
   },
   {
-    title: '字典 Value',
+    title: '关联文章',
     align: 'center',
-    dataIndex: 'dicValue',
-    key: 'dicValue',
-    scopedSlots: { customRender: 'dicValue' },
-    width: '400px'
+    dataIndex: 'articleName',
+    key: 'articleName',
+    scopedSlots: { customRender: 'articleName' }
+  },
+  {
+    title: '类型',
+    align: 'center',
+    dataIndex: 'type',
+    key: 'type',
+    scopedSlots: { customRender: 'type' }
   },
   {
     title: '创建时间',

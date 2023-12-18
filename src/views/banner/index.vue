@@ -3,21 +3,14 @@
     <a-card>
       <!-- 搜索区域 -->
       <div class="display-flex align-items justify-between margin-b-14">
-        <a-button type="primary" icon="plus" @click="addDictionary">
-          新增字典
+        <a-button type="primary" icon="plus" @click="addBanner">
+          新增轮播图
         </a-button>
-        <a-tooltip placement="bottom">
-          <template slot="title">
-            <span>点击字典 Key/Value 直接进入编辑态</span>
-          </template>
-          <a-icon type="question-circle" style='font-size: 20px'/>
-        </a-tooltip>
       </div>
       <!-- 列表 -->
-      <a-table :columns="columns" :data-source="dicData" :pagination="pagination" :loading="loading" :row-key="record => record.id">
-        <template slot="dicKey" slot-scope="text, record">
-          <a-input ref='updateKey' v-if='record.updateKey' placeholder="Basic usage" v-model='record.dicKey' @blur='cancelEditKey(record)'/>
-          <span v-else @click='enterEditKey(record.id)'>{{ record.dicKey }}</span>
+      <a-table :columns="columns" :data-source="bannerData" :pagination="pagination" :loading="loading" :row-key="record => record.id">
+        <template slot="cover" slot-scope="text, record">
+          <a-avatar size="large" shape="square" :src="record.cover" />
         </template>
         <template slot="createTime" slot-scope="text, record">
           <span>{{ record.createTime | fromNow }}</span>
@@ -25,13 +18,17 @@
         <template slot="updateTime" slot-scope="text, record">
           <span>{{ record.updateTime | fromNow }}</span>
         </template>
-        <template slot="dicValue" slot-scope="text, record">
-          <a-input ref='updateValue' v-if='record.updateValue' placeholder="Basic usage" v-model='record.dicValue' @blur='cancelEditValue(record)'/>
-          <span v-else @click='enterEditValue(record.id)'>{{ record.dicValue }}</span>
+        <template slot="articleName" slot-scope="text, record">
+          <a-tag color='orange'>{{ record.articleName }}</a-tag>
+        </template>
+        <template slot="type" slot-scope="text, record">
+          <a-tag color='green' v-if='record.type === 0'>技术分享</a-tag>
+          <a-tag color='orange' v-if='record.type === 1'>面试题</a-tag>
+          <a-tag color='blue' v-if='record.type === 2'>未归属</a-tag>
         </template>
         <template slot="action" slot-scope="text, record">
           <a-popconfirm
-            title="确定要删除该字典信息吗?"
+            title="确定要删除该轮播图吗?"
             ok-text="确认"
             cancel-text="取消"
             @confirm="confirm(record.id)"
@@ -39,30 +36,36 @@
           >
             <a-button type="danger" shape="circle" icon="delete" />
           </a-popconfirm>
+          <a-button @click="updateBannerInfo(record.id)" type="primary" class="margin-l-10" shape="circle" icon="edit" />
         </template>
       </a-table>
     </a-card>
-    <AddDictionary ref='add-dictionary' @insertDicInfo='insertDicInfo'/>
+    <OperateBannerInfo
+      :key='updateKey'
+      ref='add-banner'
+      :bannerId='bannerId'
+      :operate='operate'
+      @insertBannerInfo='insertBannerInfo'
+      @modifyBannerInfo='modifyBannerInfo'/>
   </div>
 </template>
 
 <script>
 import moment from 'moment'
-import { responseCode } from '@/constants'
+import { operateType, responseCode } from '@/constants'
 import { mapState } from 'vuex'
-import { columns } from '@/views/dictionary/columns'
+import { columns } from '@/views/banner/columns'
 import Ellipsis from '@/components/Ellipsis'
-import OperatePersonal from '@/views/personal/components/OperatePersonal'
-import AddDictionary from '@/views/dictionary/components/AddDictionary'
-import { deleteDic, dicPage, insertDic, updateDic } from '@/api/dic'
+import { bannerPage, deleteBanner, insertBanner, updateBanner } from '@/api/banner'
+import OperateBannerInfo from '@/views/banner/components/OperateBannerInfo'
 export default {
   name: 'Banner',
-  components: { AddDictionary, OperatePersonal },
+  components: { OperateBannerInfo },
   comments: { Ellipsis },
   data () {
     return {
       columns, // 表格列
-      dicData: [], // 字典数据
+      bannerData: [], // 字典数据
       searchVo: {
         current: 1,
         pageSize: 10
@@ -78,13 +81,14 @@ export default {
           return ' 共' + total + '条'
         }
       },
-      originKey: '',
-      originValue: ''
+      operate: '',
+      bannerId: '',
+      updateKey: 0
     }
   },
   created () {
     // 获取字典数据
-    this.getDicData()
+    this.getBannerData()
   },
   filters: {
     fromNow (date) {
@@ -102,89 +106,14 @@ export default {
       this.pagination = pagination
       this.searchVo.current = pagination.current
       this.searchVo.pageSize = pagination.pageSize
-      this.getDicData()
+      this.getBannerData()
     },
     // 获取字典数据
-    async getDicData () {
+    async getBannerData () {
       this.loading = true
-      const { data } = await dicPage(this.searchVo)
-      data.dics.forEach(dic => {
-        this.$set(dic, 'updateKey', false)
-        this.$set(dic, 'updateValue', false)
-      })
-      this.dicData = data.dics
+      const { data } = await bannerPage(this.searchVo)
+      this.bannerData = data.banners
       this.loading = false
-    },
-    async refreshDicData () {
-      // 请求接口
-      const { data } = await dicPage(this.searchVo)
-      data.dics.forEach(dic => {
-        this.$set(dic, 'updateKey', false)
-        this.$set(dic, 'updateValue', false)
-      })
-      this.dicData = data.dics
-    },
-    enterEditKey (id) {
-      this.dicData.forEach(dic => {
-        if (dic.id === id) {
-          this.$set(dic, 'updateKey', true)
-          this.originKey = dic.dicKey
-        }
-      })
-      this.$nextTick(() => {
-        this.$refs.updateKey.focus()
-      })
-    },
-    async cancelEditKey (record) {
-      for (const dic of this.dicData) {
-        if (dic.id === record.id) {
-          this.$set(dic, 'updateKey', false)
-          if (this.originKey !== dic.dicKey) {
-            // 调用接口更新数据
-            const dicVo = {
-              id: record.id,
-              dicKey: dic.dicKey,
-              dicValue: dic.dicValue
-            }
-            const data = await updateDic(dicVo)
-            if (data.code === responseCode.SUCCESS) {
-              this.$message.success('更新成功！')
-              this.refreshDicData()
-            }
-          }
-        }
-      }
-    },
-    enterEditValue (id) {
-      this.dicData.forEach(dic => {
-        if (dic.id === id) {
-          this.$set(dic, 'updateValue', true)
-          this.originValue = dic.dicValue
-        }
-      })
-      this.$nextTick(() => {
-        this.$refs.updateValue.focus()
-      })
-    },
-    cancelEditValue: async function (record) {
-      for (const dic of this.dicData) {
-        if (dic.id === record.id) {
-          this.$set(dic, 'updateValue', false)
-          if (this.originValue !== dic.dicValue) {
-            // 调用接口更新数据
-            const dicVo = {
-              id: record.id,
-              dicKey: dic.dicKey,
-              dicValue: dic.dicValue
-            }
-            const data = await updateDic(dicVo)
-            if (data.code === responseCode.SUCCESS) {
-              this.$message.success('更新成功！')
-              this.refreshDicData()
-            }
-          }
-        }
-      }
     },
     // 取消删除
     cancel () {
@@ -192,26 +121,42 @@ export default {
     },
     // 确定删除
     confirm (id) {
-      this.deleteDicInfo(id)
+      this.deleteBannerInfo(id)
     },
     // 删除字典
-    async deleteDicInfo (id) {
-      const data = await deleteDic(id)
+    async deleteBannerInfo (id) {
+      const data = await deleteBanner(id)
       if (data.code === responseCode.SUCCESS) {
         this.$message.success('删除成功！')
-        this.getDicData()
+        this.getBannerData()
       }
     },
     // 添加字典
-    addDictionary () {
-      this.$refs['add-dictionary'].visible = true
+    addBanner () {
+      this.operate = operateType.INSERT
+      this.$refs['add-banner'].visible = true
+      this.$refs['add-banner'].uploadUrl = ''
     },
-    async insertDicInfo (vo) {
-      const data = await insertDic(vo)
+    async insertBannerInfo (vo) {
+      const data = await insertBanner(vo)
       if (data.code === responseCode.SUCCESS) {
         this.$message.success('添加成功！')
-        this.$refs['add-dictionary'].visible = false
-        this.getDicData()
+        this.$refs['add-banner'].visible = false
+        this.getBannerData()
+      }
+    },
+    updateBannerInfo (id) {
+      this.updateKey += 1
+      this.bannerId = id
+      this.operate = operateType.UPDATE
+      this.$refs['add-banner'].visible = true
+    },
+    async modifyBannerInfo (vo) {
+      const data = await updateBanner(vo)
+      if (data.code === responseCode.SUCCESS) {
+        this.$message.success('更新成功！')
+        this.$refs['add-banner'].visible = false
+        this.getBannerData()
       }
     }
   }
